@@ -2255,6 +2255,10 @@ textarea.w-input, textarea.w-select {
   display: grid;
 }
 
+.section-logos img, .section-logos-footer img  {
+  max-height: 30px;
+}
+
 .paragraph-2 {
   color: var(--primary);
   text-align: center;
