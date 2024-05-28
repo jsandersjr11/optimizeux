@@ -3828,7 +3828,7 @@ textarea.w-input, textarea.w-select {
     grid-template-rows: auto auto;
     grid-template-columns: 1fr 1fr;
     grid-auto-columns: 1fr;
-    justify-content: space-between;
+    justify-content: inherit;
     align-items: center;
     padding-left: 24px;
     padding-right: 24px;
