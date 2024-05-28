@@ -3836,7 +3836,7 @@ textarea.w-input, textarea.w-select {
   }
 
   .feature-tiles {
-    flex-flow: column;
+    /* flex-flow: column; */
     justify-content: flex-start;
     align-items: flex-start;
   }
