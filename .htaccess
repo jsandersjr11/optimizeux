@@ -1,0 +1,66 @@
+# Enable GZIP compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Set cache headers
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresDefault "access plus 2 days"
+</IfModule>
+
+# Custom error pages
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+ErrorDocument 403 /403.html
+
+# Security headers
+Header always set X-Frame-Options "DENY"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()"
+
+# Content Security Policy for static sites
+Header set Content-Security-Policy "\
+    default-src 'self';\
+    script-src 'self' \
+    'sha256-bGJNIZV+A0tkpn6ThDHzaAU63Y7TBqOQMraxNXq4+7s=' \
+    'sha256-xdVlqtl6pbxfKpWaDxSUL7vqNvHgDDE38szknzDpqdE=' \
+    https://www.googletagmanager.com \
+    https://ajax.googleapis.com;\
+    style-src 'self' \
+    'sha256-Mhu5LX3xKMfWHcZxhhI/QSpTvb72nWmiUaZET5hJiYE=' \
+    https://fonts.googleapis.com;\
+    img-src 'self' data: https:;\
+    font-src 'self' https://fonts.gstatic.com;\
+    connect-src 'self';\
+    manifest-src 'self';\
+    base-uri 'none';\
+    form-action 'self';\
+    frame-ancestors 'none';\
+    upgrade-insecure-requests;\
+    block-all-mixed-content"
+
+# Redirect all HTTP traffic to HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
