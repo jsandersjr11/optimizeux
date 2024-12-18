@@ -7,52 +7,80 @@ function generateHash(content) {
     return `'sha256-${hash.digest('base64')}'`;
 }
 
-// Read your HTML file
-const html = fs.readFileSync('index.html', 'utf8');
+function processHTMLFile(filename) {
+    console.log(`\nProcessing ${filename}...`);
+    const html = fs.readFileSync(filename, 'utf8');
 
-// Find all inline scripts and styles
-const scriptRegex = /<script>([^<]*)<\/script>/g;
-const styleRegex = /<style>([^<]*)<\/style>/g;
+    // Find all scripts (both inline and external)
+    const inlineScriptRegex = /<script>([^<]*)<\/script>/g;
+    const externalScriptRegex = /<script[^>]+src=["']([^"']+)["'][^>]*>/g;
+    const styleRegex = /<style>([^<]*)<\/style>/g;
 
-const scripts = [];
-const styles = [];
+    const scripts = [];
+    const externalScripts = new Set();
+    const styles = [];
 
-let match;
-while ((match = scriptRegex.exec(html)) !== null) {
-    const content = match[1].trim();
-    scripts.push({
-        content: content,
-        hash: generateHash(content)
+    let match;
+    while ((match = inlineScriptRegex.exec(html)) !== null) {
+        const content = match[1].trim();
+        if (content) {
+            scripts.push({
+                content: content,
+                hash: generateHash(content)
+            });
+        }
+    }
+
+    while ((match = externalScriptRegex.exec(html)) !== null) {
+        externalScripts.add(match[1]);
+    }
+
+    while ((match = styleRegex.exec(html)) !== null) {
+        const content = match[1].trim();
+        if (content) {
+            styles.push({
+                content: content,
+                hash: generateHash(content)
+            });
+        }
+    }
+
+    console.log('Inline Scripts:');
+    scripts.forEach((script, index) => {
+        console.log(`\n--- Script ${index + 1} ---`);
+        console.log('Hash:', script.hash);
+        console.log('Content:\n', script.content);
     });
+
+    console.log('\nExternal Scripts:');
+    externalScripts.forEach(src => {
+        console.log(src);
+    });
+
+    console.log('\nStyles:');
+    styles.forEach((style, index) => {
+        console.log(`\n--- Style ${index + 1} ---`);
+        console.log('Hash:', style.hash);
+        console.log('Content:\n', style.content);
+    });
+
+    return { scripts, externalScripts, styles };
 }
 
-while ((match = styleRegex.exec(html)) !== null) {
-    const content = match[1].trim();
-    styles.push({
-        content: content,
-        hash: generateHash(content)
-    });
-}
+// Process both files
+const files = ['index.html', 'daas-special.html'];
+const allHashes = new Set();
+const allExternalScripts = new Set();
 
-console.log('Scripts:');
-scripts.forEach((script, index) => {
-    console.log(`\n--- Script ${index + 1} ---`);
-    console.log('Hash:', script.hash);
-    console.log('Content:\n', script.content);
+files.forEach(file => {
+    const { scripts, externalScripts, styles } = processHTMLFile(file);
+    scripts.forEach(script => allHashes.add(script.hash));
+    styles.forEach(style => allHashes.add(style.hash));
+    externalScripts.forEach(src => allExternalScripts.add(src));
 });
 
-console.log('\nStyles:');
-styles.forEach((style, index) => {
-    console.log(`\n--- Style ${index + 1} ---`);
-    console.log('Hash:', style.hash);
-    console.log('Content:\n', style.content);
-});
+console.log('\nAll unique hashes for CSP:');
+console.log([...allHashes].join(' \\\n'));
 
-// Optionally, write to files
-scripts.forEach((script, index) => {
-    fs.writeFileSync(`js/script${index + 1}.js`, script.content);
-});
-
-styles.forEach((style, index) => {
-    fs.writeFileSync(`css/style${index + 1}.css`, style.content);
-}); 
+console.log('\nAll external scripts to include in CSP:');
+console.log([...allExternalScripts].join('\n')); 

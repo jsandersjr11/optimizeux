@@ -43,8 +43,8 @@ Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(
 Header set Content-Security-Policy "\
     default-src 'self';\
     script-src 'self' \
-    'sha256-bGJNIZV+A0tkpn6ThDHzaAU63Y7TBqOQMraxNXq4+7s=' \
-    'sha256-xdVlqtl6pbxfKpWaDxSUL7vqNvHgDDE38szknzDpqdE=' \
+    'sha256-Mhu5LX3xKMfWHcZxhhI/QSpTvb72nWmiUaZET5hJiYE=' \
+    https://d3e54v103j8qbb.cloudfront.net \
     https://www.googletagmanager.com \
     https://ajax.googleapis.com;\
     style-src 'self' \
